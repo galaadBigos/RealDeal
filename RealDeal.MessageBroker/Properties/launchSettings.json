@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RealDeal.MessageBrocker": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

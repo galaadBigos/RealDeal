@@ -1,0 +1,6 @@
+@RealDeal.match_HostAddress = http://localhost:5273
+
+GET {{RealDeal.match_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

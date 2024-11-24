@@ -1,0 +1,107 @@
+version: '3.8'
+
+networks:
+  realdeal-network:
+    driver: bridge
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: RealDeal.Gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth
+      - bet
+      - match
+      - notifications
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - AUTH_API_URL=http://auth:8081
+      - BET_API_URL=http://bet:8082
+      - MATCH_API_URL=http://match:8083
+      - NOTIFICATIONS_API_URL=http://notifications:8084
+    networks:
+      - realdeal-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - realdeal-network
+
+  messagebroker:
+    build:
+      context: .
+      dockerfile: RealDeal.MessageBroker/Dockerfile
+    depends_on:
+      - rabbitmq
+    networks:
+      - realdeal-network
+
+  auth:
+    build:
+      context: .
+      dockerfile: RealDeal.Auth/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=RealDeal_Auth_Db;User=sa;Password=xXxxXx123;TrustServerCertificate=True;
+    networks:
+      - realdeal-network
+
+  bet:
+    build:
+      context: .
+      dockerfile: RealDeal.Bet/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=RealDeal_Bet_Db;User=sa;Password=xXxxXx123;TrustServerCertificate=True;
+    networks:
+      - realdeal-network
+
+  match:
+    build:
+      context: .
+      dockerfile: RealDeal.match/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - realdeal-network
+
+  notifications:
+    build:
+      context: .
+      dockerfile: RealDeal.Notifications/Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    networks:
+      - realdeal-network
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "xXxxXx123"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - realdeal-network
+
+volumes:
+  sqlserver-data:
+    driver: local

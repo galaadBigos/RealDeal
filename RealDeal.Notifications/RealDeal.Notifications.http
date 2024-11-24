@@ -1,0 +1,6 @@
+@RealDeal.Notifications_HostAddress = http://localhost:5249
+
+GET {{RealDeal.Notifications_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+@RealDeal.Bet_HostAddress = http://localhost:5174
+
+GET {{RealDeal.Bet_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
