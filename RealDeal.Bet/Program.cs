@@ -11,7 +11,7 @@ builder.WebHost.UseUrls("http://*:8082");
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddDbContext<RealDealDbContext>(options =>
+builder.Services.AddDbContext<BetDbContext>(options =>
 {
 	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
@@ -46,11 +46,22 @@ app.Use(async (context, next) =>
 
 using (var scope = app.Services.CreateScope())
 {
-	var context = scope.ServiceProvider.GetRequiredService<RealDealDbContext>();
-	context.Database.EnsureCreated();
+	var cancelationTokenSource = new CancellationTokenSource();
+	cancelationTokenSource.CancelAfter(TimeSpan.FromMinutes(5));
+	var context = scope.ServiceProvider.GetRequiredService<BetDbContext>();
+	try
+	{
+		Console.WriteLine("Start database migration");
+		await context.Database.MigrateAsync(cancelationTokenSource.Token);
+		Console.WriteLine("End database migration");
+	}
+	catch (Exception ex)
+	{
+		Console.WriteLine($"Error during the database migration : {ex.Message}");
+	}
 }
 
-app.MapPost("/bet", async ([FromBody] Bet bet, [FromServices] RealDealDbContext context, IConnectionFactory factory) =>
+app.MapPost("/bet", async ([FromBody] Bet bet, [FromServices] BetDbContext context, IConnectionFactory factory) =>
 {
 	try
 	{
@@ -76,19 +87,19 @@ app.MapPost("/bet", async ([FromBody] Bet bet, [FromServices] RealDealDbContext 
 
 });
 
-app.MapGet("/bet/list", ([FromServices] RealDealDbContext context) =>
+app.MapGet("/bet/list", ([FromServices] BetDbContext context) =>
 {
 	var result = context.Bets;
 	return Results.Ok(result);
 });
 
-app.MapGet("/bet/{id:guid}", ([FromRoute] Guid id, [FromServices] RealDealDbContext context) =>
+app.MapGet("/bet/{id:guid}", ([FromRoute] Guid id, [FromServices] BetDbContext context) =>
 {
 	var result = context.Bets.Where(b => b.Id == id).FirstOrDefault();
 	return result is not null ? Results.Ok(result) : Results.NotFound();
 });
 
-app.MapPut("/bet", ([FromBody] Bet bet, [FromServices] RealDealDbContext context) =>
+app.MapPut("/bet", ([FromBody] Bet bet, [FromServices] BetDbContext context) =>
 {
 	var result = context.Bets
 		.Where(b => b.Id == bet.Id)
@@ -101,7 +112,7 @@ app.MapPut("/bet", ([FromBody] Bet bet, [FromServices] RealDealDbContext context
 	return result > 0 ? Results.NoContent() : Results.NotFound();
 });
 
-app.MapDelete("/bet/{id:guid}", ([FromRoute] Guid id, [FromServices] RealDealDbContext context) =>
+app.MapDelete("/bet/{id:guid}", ([FromRoute] Guid id, [FromServices] BetDbContext context) =>
 {
 	var result = context.Bets.Where(b => b.Id == id).ExecuteDelete();
 	return result > 0 ? Results.NoContent() : Results.NotFound();

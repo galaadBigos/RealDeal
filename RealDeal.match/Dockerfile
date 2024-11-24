@@ -10,21 +10,21 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 COPY ["RealDeal.Shared/RealDeal.Shared.csproj", "RealDeal.Shared/"]
-COPY ["RealDeal.match/RealDeal.match.csproj", "RealDeal.match/"]
+COPY ["RealDeal.Match/RealDeal.Match.csproj", "RealDeal.Match/"]
 
-RUN dotnet restore "RealDeal.match/RealDeal.match.csproj"
+RUN dotnet restore "RealDeal.Match/RealDeal.Match.csproj"
 
 COPY RealDeal.Shared/ RealDeal.Shared/
-COPY RealDeal.match/ RealDeal.match/
+COPY RealDeal.Match/ RealDeal.Match/
 
-WORKDIR /src/RealDeal.match
-RUN dotnet build "RealDeal.match.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR /src/RealDeal.Match
+RUN dotnet build "RealDeal.Match.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "RealDeal.match.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "RealDeal.Match.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "RealDeal.match.dll"]
+ENTRYPOINT ["dotnet", "RealDeal.Match.dll"]

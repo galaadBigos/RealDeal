@@ -11,7 +11,7 @@ using RealDeal;
 
 namespace RealDeal.Bet.Migrations
 {
-    [DbContext(typeof(RealDealDbContext))]
+    [DbContext(typeof(BetDbContext))]
     [Migration("20241119095942_AddMatchs")]
     partial class AddMatchs
     {

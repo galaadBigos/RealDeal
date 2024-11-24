@@ -11,7 +11,7 @@ using RealDeal;
 
 namespace RealDeal.Bet.Migrations
 {
-    [DbContext(typeof(RealDealDbContext))]
+    [DbContext(typeof(BetDbContext))]
     [Migration("20241119084933_InitialCreate")]
     partial class InitialCreate
     {

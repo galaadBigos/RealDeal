@@ -46,8 +46,19 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
+	var cancelationTokenSource = new CancellationTokenSource();
+	cancelationTokenSource.CancelAfter(TimeSpan.FromMinutes(5));
 	var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-	context.Database.EnsureCreated();
+	try
+	{
+		Console.WriteLine("Start database migration");
+		await context.Database.MigrateAsync(cancelationTokenSource.Token);
+		Console.WriteLine("End database migration");
+	}
+	catch (Exception ex)
+	{
+		Console.WriteLine($"Error during the database migration : {ex.Message}");
+	}
 }
 
 app.MapPost("/user", async ([FromBody] User user, [FromServices] AuthDbContext context, IConnectionFactory factory) =>

@@ -70,7 +70,7 @@ services:
   match:
     build:
       context: .
-      dockerfile: RealDeal.match/Dockerfile
+      dockerfile: RealDeal.Match/Dockerfile
     ports:
       - "8083:8083"
     environment:

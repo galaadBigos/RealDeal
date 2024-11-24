@@ -2,9 +2,9 @@
 
 namespace RealDeal;
 
-public class RealDealDbContext : DbContext
+public class BetDbContext : DbContext
 {
-	public RealDealDbContext(DbContextOptions<RealDealDbContext> options) : base(options)
+	public BetDbContext(DbContextOptions<BetDbContext> options) : base(options)
 	{
 
 	}
